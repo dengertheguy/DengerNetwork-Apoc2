@@ -5,7 +5,7 @@ local Window = Rayfield:CreateWindow({
     Icon = 0,
     LoadingTitle = "DengerNetwork",
     LoadingSubtitle = "by d3gr",
-    Theme = "Default",
+    Theme = "Amethyst",
 
     ConfigurationSaving = {
         Enabled = false,
@@ -175,7 +175,7 @@ local ToggleTracers = MainTab:CreateToggle({
 
 -- Scripts tab for external scripts
 local Tab = Window:CreateTab("Scripts", nil) -- Title, Image
-
+local MainSection = Tab:CreateSection("SCRIPTS")
 -- RealZz Aimbot
 Tab:CreateButton({
     Name = "RealZz Aimbot",
@@ -395,3 +395,56 @@ local ToggleTracers = MainTab:CreateToggle({
         end
     end,
 })
+
+local Tab = Window:CreateTab("Settings", nil)
+local Section = Tab:CreateSection("Keybinds")
+
+-- Create a Keybind
+-- Create a Keybind (using Rayfield)
+local keybindLabel = Tab:CreateLabel("Menu Keybind: K")  -- Default is "K"
+
+-- Create a Keybind element (This is for setting the key dynamically)
+local Keybind = Tab:CreateKeybind({
+    Name = "Change Keybind",
+    CurrentKeybind = "K",  -- Default keybind is "K"
+    HoldToInteract = false,  -- Set to false to trigger on press, true for hold-to-interact
+    Flag = "Keybind1",  -- Flag to save the keybind setting
+    Callback = function(Keybind)
+        -- This function is triggered when the keybind is pressed.
+        -- We will update the label to show the keybind that's set.
+        keybindLabel:SetText("Menu Keybind: " .. Keybind)
+    end
+})
+
+-- (Optional) Dynamically set the keybind to another key if needed
+Keybind:Set(Enum.KeyCode.K)  -- Default keybind is K, you can change this to any other key
+
+-- Variable to track if the script has been executed by a player
+local scriptExecuted = false
+
+-- Function to send notifications to all players
+local function sendScriptExecutionNotification(executingPlayer)
+    -- Send a notification to all players in the server
+    for _, otherPlayer in pairs(game:GetService("Players"):GetPlayers()) do
+        if otherPlayer ~= player then
+            game:GetService("StarterGui"):SetCore("SendNotification", {
+                Title = "DengerNetwork Script Alert",
+                Text = executingPlayer.Name .. " is using the script!",
+                Duration = 5
+            })
+        end
+    end
+end
+
+-- Detect when the script is first executed
+if not scriptExecuted then
+    scriptExecuted = true
+    sendScriptExecutionNotification(player)  -- Notify all players that this player executed the script
+end
+
+-- Listen for other players who execute the script
+game:GetService("Players").PlayerAdded:Connect(function(otherPlayer)
+    if scriptExecuted then
+        sendScriptExecutionNotification(otherPlayer)  -- Notify this player that others are using the script
+    end
+end)
